@@ -41,31 +41,55 @@ initialModel : Model
 initialModel =
     let
         locations =
-            [ { coords = ( -41.28918850000001, 174.77715709999998 )
+            [ { coords = ( -41.289, 174.7772 )
+              , name = "Tim's Desk"
+              , img = "placeholder.png"
+              , cost = 5
+              , found = False
+              }
+            , { coords = ( -41.2892, 174.7772 )
+              , name = "Julia's Desk"
+              , img = "placeholder.png"
+              , cost = 5
+              , found = False
+              }
+            , { coords = ( -41.289877, 174.777798 )
+              , name = "Michael Fowler Centre"
+              , img = "placeholder.png"
+              , cost = 5
+              , found = False
+              }
+            , { coords = ( -41.288554, 174.777268 )
+              , name = "City Gallery"
+              , img = "placeholder.png"
+              , cost = 5
+              , found = False
+              }
+            , { coords = ( -41.289392, 174.782798 )
               , name = "Solace of Wind"
               , img = "solace-of-wind.jpg"
               , cost = 5
               , found = False
               }
-            , { coords = ( -41.28918850000001, 174.77715709999998 )
+            , { coords = ( -41.278523, 174.777686 )
               , name = "The Beehive"
               , img = "beehive.jpg"
               , cost = 8
               , found = False
               }
-            , { coords = ( -41.28918850000001, 174.77715709999998 )
+            , { coords = ( -41.285066, 174.767401 )
               , name = "Wellington Cable Car"
               , img = "cable-car.jpg"
               , cost = 8
               , found = False
               }
-            , { coords = ( -41.28918850000001, 174.77715709999998 )
+            , { coords = ( -41.2854, 174.768965 )
               , name = "Kelburn Park"
               , img = "kelburn-park.jpg"
               , cost = 10
               , found = False
               }
-            , { coords = ( -41.28918850000001, 174.77715709999998 )
+            , { coords = ( -41.28583, 174.778051 )
               , name = "ASB Tower"
               , img = "asb-tower.jpg"
               , cost = 10
@@ -277,7 +301,7 @@ locationCard location =
             if location.found then
                 text location.name
             else
-                text "Undiscovered"
+                text <| "Undiscovered (but secretly " ++ location.name ++ ")"
 
         description =
             if location.found then

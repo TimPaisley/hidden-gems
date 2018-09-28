@@ -10919,7 +10919,7 @@ var _user$project$Main$header = function (gems) {
 };
 var _user$project$Main$matchGeoResult = F3(
 	function (geoloc, location, locations) {
-		var proximity = 1.0e-4;
+		var proximity = 2.0e-4;
 		var isWithin = F2(
 			function (_p1, _p0) {
 				var _p2 = _p1;
@@ -10963,49 +10963,89 @@ var _user$project$Main$initialModel = function () {
 	var locations = {
 		ctor: '::',
 		_0: {
-			coords: {ctor: '_Tuple2', _0: -41.28918850000001, _1: 174.77715709999998},
-			name: 'Solace of Wind',
-			img: 'solace-of-wind.jpg',
+			coords: {ctor: '_Tuple2', _0: -41.289, _1: 174.7772},
+			name: 'Tim\'s Desk',
+			img: 'placeholder.png',
 			cost: 5,
 			found: false
 		},
 		_1: {
 			ctor: '::',
 			_0: {
-				coords: {ctor: '_Tuple2', _0: -41.28918850000001, _1: 174.77715709999998},
-				name: 'The Beehive',
-				img: 'beehive.jpg',
-				cost: 8,
+				coords: {ctor: '_Tuple2', _0: -41.2892, _1: 174.7772},
+				name: 'Julia\'s Desk',
+				img: 'placeholder.png',
+				cost: 5,
 				found: false
 			},
 			_1: {
 				ctor: '::',
 				_0: {
-					coords: {ctor: '_Tuple2', _0: -41.28918850000001, _1: 174.77715709999998},
-					name: 'Wellington Cable Car',
-					img: 'cable-car.jpg',
-					cost: 8,
+					coords: {ctor: '_Tuple2', _0: -41.289877, _1: 174.777798},
+					name: 'Michael Fowler Centre',
+					img: 'placeholder.png',
+					cost: 5,
 					found: false
 				},
 				_1: {
 					ctor: '::',
 					_0: {
-						coords: {ctor: '_Tuple2', _0: -41.28918850000001, _1: 174.77715709999998},
-						name: 'Kelburn Park',
-						img: 'kelburn-park.jpg',
-						cost: 10,
+						coords: {ctor: '_Tuple2', _0: -41.288554, _1: 174.777268},
+						name: 'City Gallery',
+						img: 'placeholder.png',
+						cost: 5,
 						found: false
 					},
 					_1: {
 						ctor: '::',
 						_0: {
-							coords: {ctor: '_Tuple2', _0: -41.28918850000001, _1: 174.77715709999998},
-							name: 'ASB Tower',
-							img: 'asb-tower.jpg',
-							cost: 10,
+							coords: {ctor: '_Tuple2', _0: -41.289392, _1: 174.782798},
+							name: 'Solace of Wind',
+							img: 'solace-of-wind.jpg',
+							cost: 5,
 							found: false
 						},
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: {
+								coords: {ctor: '_Tuple2', _0: -41.278523, _1: 174.777686},
+								name: 'The Beehive',
+								img: 'beehive.jpg',
+								cost: 8,
+								found: false
+							},
+							_1: {
+								ctor: '::',
+								_0: {
+									coords: {ctor: '_Tuple2', _0: -41.285066, _1: 174.767401},
+									name: 'Wellington Cable Car',
+									img: 'cable-car.jpg',
+									cost: 8,
+									found: false
+								},
+								_1: {
+									ctor: '::',
+									_0: {
+										coords: {ctor: '_Tuple2', _0: -41.2854, _1: 174.768965},
+										name: 'Kelburn Park',
+										img: 'kelburn-park.jpg',
+										cost: 10,
+										found: false
+									},
+									_1: {
+										ctor: '::',
+										_0: {
+											coords: {ctor: '_Tuple2', _0: -41.28583, _1: 174.778051},
+											name: 'ASB Tower',
+											img: 'asb-tower.jpg',
+											cost: 10,
+											found: false
+										},
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -11364,7 +11404,11 @@ var _user$project$Main$LocationClicked = function (a) {
 };
 var _user$project$Main$locationCard = function (location) {
 	var description = location.found ? _elm_lang$html$Html$text('You found this location! Tap here to learn more about it.') : _elm_lang$html$Html$text('Find this location and tap here to claim your gems...');
-	var title = location.found ? _elm_lang$html$Html$text(location.name) : _elm_lang$html$Html$text('Undiscovered');
+	var title = location.found ? _elm_lang$html$Html$text(location.name) : _elm_lang$html$Html$text(
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'Undiscovered (but secretly ',
+			A2(_elm_lang$core$Basics_ops['++'], location.name, ')')));
 	return A2(
 		_elm_lang$html$Html$div,
 		{
