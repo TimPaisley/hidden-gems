@@ -179,7 +179,8 @@ matchGeoResult : Geo.Location -> Location -> List Location -> ( List Location, B
 matchGeoResult geoloc location locations =
     let
         proximity =
-            0.0001
+            -- approx 20m
+            0.0002
 
         isWithin ( x1, y1 ) ( x2, y2 ) =
             (abs (x1 - x2)) < proximity && (abs (y1 - y2)) < proximity
