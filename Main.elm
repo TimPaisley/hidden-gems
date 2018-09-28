@@ -4,6 +4,7 @@ import Geolocation as Geo
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import List.Extra as ListX
 import Svg exposing (svg)
 import Svg.Attributes exposing (fill, points, viewBox)
 import Task
@@ -85,7 +86,7 @@ init =
 
 type Msg
     = LocationClicked Location
-    | CheckLocation (Result Geo.Error Geo.Location)
+    | CheckLocation Location (Result Geo.Error Geo.Location)
     | NoOp
 
 
@@ -96,17 +97,30 @@ update msg model =
             if location.found then
                 ( model, Cmd.none )
             else
-                ( model, Task.attempt CheckLocation Geo.now )
+                ( model, Task.attempt (CheckLocation location) Geo.now )
 
-        CheckLocation result ->
+        CheckLocation location result ->
             case result of
                 Err error ->
                     Debug.log "Error Occurred: " error
                         |> \error -> ( { model | error = matchGeoError error }, Cmd.none )
 
                 Ok geoloc ->
-                    Debug.log "Location Received: " geoloc
-                        |> \_ -> ( model, Cmd.none )
+                    let
+                        ( newLocations, matchedLocation ) =
+                            matchGeoResult geoloc location model.locations
+
+                        gemsEarned =
+                            if matchedLocation then
+                                location.cost
+                            else
+                                0
+
+                        debug =
+                            Debug.log "Within Range: " matchedLocation
+                    in
+                        Debug.log "Location Received: " geoloc
+                            |> \_ -> ( { model | locations = newLocations, gems = model.gems + gemsEarned }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
@@ -123,6 +137,21 @@ matchGeoError error =
 
         Geo.Timeout err ->
             "Timeout: " ++ err
+
+
+matchGeoResult : Geo.Location -> Location -> List Location -> ( List Location, Bool )
+matchGeoResult geoloc location locations =
+    let
+        proximity =
+            0.0001
+
+        isWithin ( x1, y1 ) ( x2, y2 ) =
+            (abs (x1 - x2)) < proximity && (abs (y1 - y2)) < proximity
+
+        locationIsWithinRange =
+            isWithin location.coords ( geoloc.latitude, geoloc.longitude )
+    in
+        ( ListX.replaceIf (\l -> l.name == location.name) { location | found = locationIsWithinRange } locations, locationIsWithinRange )
 
 
 
