@@ -24,6 +24,7 @@ type alias Model =
     { locations : List Location
     , gems : Int
     , error : String
+    , lastKnownLocation : Maybe Geo.Location
     }
 
 
@@ -42,37 +43,37 @@ initialModel =
         locations =
             [ { coords = ( -41.28918850000001, 174.77715709999998 )
               , name = "Solace of Wind"
-              , img = "solace-of-wind.png"
+              , img = "solace-of-wind.jpg"
               , cost = 5
               , found = False
               }
             , { coords = ( -41.28918850000001, 174.77715709999998 )
               , name = "The Beehive"
-              , img = "beehive.png"
+              , img = "beehive.jpg"
               , cost = 8
               , found = False
               }
             , { coords = ( -41.28918850000001, 174.77715709999998 )
               , name = "Wellington Cable Car"
-              , img = "cable-car.png"
+              , img = "cable-car.jpg"
               , cost = 8
               , found = False
               }
             , { coords = ( -41.28918850000001, 174.77715709999998 )
               , name = "Kelburn Park"
-              , img = "kelburn-park.png"
+              , img = "kelburn-park.jpg"
               , cost = 10
               , found = False
               }
             , { coords = ( -41.28918850000001, 174.77715709999998 )
               , name = "ASB Tower"
-              , img = "asb-tower.png"
+              , img = "asb-tower.jpg"
               , cost = 10
               , found = False
               }
             ]
     in
-        { locations = locations, gems = 0, error = "" }
+        { locations = locations, gems = 0, error = "", lastKnownLocation = Nothing }
 
 
 init : ( Model, Cmd Msg )
@@ -86,6 +87,10 @@ init =
 
 type Msg
     = LocationClicked Location
+    | GetNewLocation
+    | AddCurrentLocation
+    | ResetAllLocations
+    | NewLocation (Result Geo.Error Geo.Location)
     | CheckLocation Location (Result Geo.Error Geo.Location)
     | NoOp
 
@@ -98,6 +103,37 @@ update msg model =
                 ( model, Cmd.none )
             else
                 ( model, Task.attempt (CheckLocation location) Geo.now )
+
+        GetNewLocation ->
+            ( model, Task.attempt NewLocation Geo.now )
+
+        AddCurrentLocation ->
+            case model.lastKnownLocation of
+                Just l ->
+                    let
+                        tempLocation =
+                            { coords = ( l.latitude, l.longitude )
+                            , name = "Placeholder"
+                            , img = "solace-of-wind.png"
+                            , cost = 0
+                            , found = False
+                            }
+                    in
+                        ( { model | locations = tempLocation :: model.locations }, Cmd.none )
+
+                Nothing ->
+                    ( { model | error = "Record a location before adding a placeholder." }, Cmd.none )
+
+        ResetAllLocations ->
+            ( { model | locations = List.map (\l -> { l | found = False }) model.locations }, Cmd.none )
+
+        NewLocation result ->
+            case result of
+                Err error ->
+                    ( { model | error = matchGeoError error }, Cmd.none )
+
+                Ok geoloc ->
+                    ( { model | lastKnownLocation = Just geoloc }, Cmd.none )
 
         CheckLocation location result ->
             case result of
@@ -117,10 +153,10 @@ update msg model =
                                 0
 
                         debug =
-                            Debug.log "Within Range: " matchedLocation
+                            Debug.log "Within Range" matchedLocation
                     in
-                        Debug.log "Location Received: " geoloc
-                            |> \_ -> ( { model | locations = newLocations, gems = model.gems + gemsEarned }, Cmd.none )
+                        Debug.log "Location Received" geoloc
+                            |> \_ -> ( { model | locations = newLocations, gems = model.gems + gemsEarned, lastKnownLocation = Just geoloc }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
@@ -170,6 +206,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ header model.gems
+        , debugPanel model
         , locations model.locations
         ]
 
@@ -182,6 +219,46 @@ header gems =
             , div [ class "corner" ] [ gemIcon 20 "#FFF", text <| toString gems ]
             ]
         ]
+
+
+debugPanel : Model -> Html Msg
+debugPanel model =
+    let
+        errors =
+            if model.error == "" then
+                "No errors"
+            else
+                model.error
+
+        lastKnownLocationStr =
+            case model.lastKnownLocation of
+                Just l ->
+                    toString l.latitude ++ ", " ++ toString l.longitude
+
+                Nothing ->
+                    "N/A"
+    in
+        div [ id "debug" ]
+            [ div [ class "container" ]
+                [ div [ class "card" ]
+                    [ div [ class "content" ]
+                        [ div [ class "row" ]
+                            [ div [ class "title" ] [ text "Debug" ]
+                            , div [] [ text <| toString (List.length model.locations) ++ " locations" ]
+                            ]
+                        , div [ class "description" ] [ text errors ]
+                        , div [ class "row" ]
+                            [ div [] [ text <| "Last Known Location: " ++ lastKnownLocationStr ]
+                            ]
+                        , div [ class "row" ]
+                            [ button [ onClick GetNewLocation ] [ text "Get Location" ]
+                            , button [ onClick AddCurrentLocation ] [ text "Add Current Location" ]
+                            , button [ onClick ResetAllLocations ] [ text "Reset All Locations" ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
 
 
 locations : List Location -> Html Msg

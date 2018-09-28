@@ -10965,7 +10965,7 @@ var _user$project$Main$initialModel = function () {
 		_0: {
 			coords: {ctor: '_Tuple2', _0: -41.28918850000001, _1: 174.77715709999998},
 			name: 'Solace of Wind',
-			img: 'solace-of-wind.png',
+			img: 'solace-of-wind.jpg',
 			cost: 5,
 			found: false
 		},
@@ -10974,7 +10974,7 @@ var _user$project$Main$initialModel = function () {
 			_0: {
 				coords: {ctor: '_Tuple2', _0: -41.28918850000001, _1: 174.77715709999998},
 				name: 'The Beehive',
-				img: 'beehive.png',
+				img: 'beehive.jpg',
 				cost: 8,
 				found: false
 			},
@@ -10983,7 +10983,7 @@ var _user$project$Main$initialModel = function () {
 				_0: {
 					coords: {ctor: '_Tuple2', _0: -41.28918850000001, _1: 174.77715709999998},
 					name: 'Wellington Cable Car',
-					img: 'cable-car.png',
+					img: 'cable-car.jpg',
 					cost: 8,
 					found: false
 				},
@@ -10992,7 +10992,7 @@ var _user$project$Main$initialModel = function () {
 					_0: {
 						coords: {ctor: '_Tuple2', _0: -41.28918850000001, _1: 174.77715709999998},
 						name: 'Kelburn Park',
-						img: 'kelburn-park.png',
+						img: 'kelburn-park.jpg',
 						cost: 10,
 						found: false
 					},
@@ -11001,7 +11001,7 @@ var _user$project$Main$initialModel = function () {
 						_0: {
 							coords: {ctor: '_Tuple2', _0: -41.28918850000001, _1: 174.77715709999998},
 							name: 'ASB Tower',
-							img: 'asb-tower.png',
+							img: 'asb-tower.jpg',
 							cost: 10,
 							found: false
 						},
@@ -11011,12 +11011,12 @@ var _user$project$Main$initialModel = function () {
 			}
 		}
 	};
-	return {locations: locations, gems: 0, error: ''};
+	return {locations: locations, gems: 0, error: '', lastKnownLocation: _elm_lang$core$Maybe$Nothing};
 }();
 var _user$project$Main$init = {ctor: '_Tuple2', _0: _user$project$Main$initialModel, _1: _elm_lang$core$Platform_Cmd$none};
-var _user$project$Main$Model = F3(
-	function (a, b, c) {
-		return {locations: a, gems: b, error: c};
+var _user$project$Main$Model = F4(
+	function (a, b, c, d) {
+		return {locations: a, gems: b, error: c, lastKnownLocation: d};
 	});
 var _user$project$Main$Location = F5(
 	function (a, b, c, d, e) {
@@ -11027,6 +11027,9 @@ var _user$project$Main$CheckLocation = F2(
 	function (a, b) {
 		return {ctor: 'CheckLocation', _0: a, _1: b};
 	});
+var _user$project$Main$NewLocation = function (a) {
+	return {ctor: 'NewLocation', _0: a};
+};
 var _user$project$Main$update = F2(
 	function (msg, model) {
 		var _p5 = msg;
@@ -11041,10 +11044,85 @@ var _user$project$Main$update = F2(
 						_user$project$Main$CheckLocation(_p6),
 						_elm_lang$geolocation$Geolocation$now)
 				};
+			case 'GetNewLocation':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: A2(_elm_lang$core$Task$attempt, _user$project$Main$NewLocation, _elm_lang$geolocation$Geolocation$now)
+				};
+			case 'AddCurrentLocation':
+				var _p7 = model.lastKnownLocation;
+				if (_p7.ctor === 'Just') {
+					var _p8 = _p7._0;
+					var tempLocation = {
+						coords: {ctor: '_Tuple2', _0: _p8.latitude, _1: _p8.longitude},
+						name: 'Placeholder',
+						img: 'solace-of-wind.png',
+						cost: 0,
+						found: false
+					};
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								locations: {ctor: '::', _0: tempLocation, _1: model.locations}
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{error: 'Record a location before adding a placeholder.'}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
+			case 'ResetAllLocations':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							locations: A2(
+								_elm_lang$core$List$map,
+								function (l) {
+									return _elm_lang$core$Native_Utils.update(
+										l,
+										{found: false});
+								},
+								model.locations)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'NewLocation':
+				var _p9 = _p5._0;
+				if (_p9.ctor === 'Err') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								error: _user$project$Main$matchGeoError(_p9._0)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								lastKnownLocation: _elm_lang$core$Maybe$Just(_p9._0)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
 			case 'CheckLocation':
-				var _p11 = _p5._0;
-				var _p7 = _p5._1;
-				if (_p7.ctor === 'Err') {
+				var _p14 = _p5._0;
+				var _p10 = _p5._1;
+				if (_p10.ctor === 'Err') {
 					return function (error) {
 						return {
 							ctor: '_Tuple2',
@@ -11056,29 +11134,231 @@ var _user$project$Main$update = F2(
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
 					}(
-						A2(_elm_lang$core$Debug$log, 'Error Occurred: ', _p7._0));
+						A2(_elm_lang$core$Debug$log, 'Error Occurred: ', _p10._0));
 				} else {
-					var _p10 = _p7._0;
-					var _p8 = A3(_user$project$Main$matchGeoResult, _p10, _p11, model.locations);
-					var newLocations = _p8._0;
-					var matchedLocation = _p8._1;
-					var gemsEarned = matchedLocation ? _p11.cost : 0;
-					var debug = A2(_elm_lang$core$Debug$log, 'Within Range: ', matchedLocation);
-					return function (_p9) {
+					var _p13 = _p10._0;
+					var _p11 = A3(_user$project$Main$matchGeoResult, _p13, _p14, model.locations);
+					var newLocations = _p11._0;
+					var matchedLocation = _p11._1;
+					var gemsEarned = matchedLocation ? _p14.cost : 0;
+					var debug = A2(_elm_lang$core$Debug$log, 'Within Range', matchedLocation);
+					return function (_p12) {
 						return {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
 								model,
-								{locations: newLocations, gems: model.gems + gemsEarned}),
+								{
+									locations: newLocations,
+									gems: model.gems + gemsEarned,
+									lastKnownLocation: _elm_lang$core$Maybe$Just(_p13)
+								}),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
 					}(
-						A2(_elm_lang$core$Debug$log, 'Location Received: ', _p10));
+						A2(_elm_lang$core$Debug$log, 'Location Received', _p13));
 				}
 			default:
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
+var _user$project$Main$ResetAllLocations = {ctor: 'ResetAllLocations'};
+var _user$project$Main$AddCurrentLocation = {ctor: 'AddCurrentLocation'};
+var _user$project$Main$GetNewLocation = {ctor: 'GetNewLocation'};
+var _user$project$Main$debugPanel = function (model) {
+	var lastKnownLocationStr = function () {
+		var _p15 = model.lastKnownLocation;
+		if (_p15.ctor === 'Just') {
+			var _p16 = _p15._0;
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				_elm_lang$core$Basics$toString(_p16.latitude),
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					', ',
+					_elm_lang$core$Basics$toString(_p16.longitude)));
+		} else {
+			return 'N/A';
+		}
+	}();
+	var errors = _elm_lang$core$Native_Utils.eq(model.error, '') ? 'No errors' : model.error;
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$id('debug'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('container'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('card'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('content'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('row'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$div,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$class('title'),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('Debug'),
+													_1: {ctor: '[]'}
+												}),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$div,
+													{ctor: '[]'},
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html$text(
+															A2(
+																_elm_lang$core$Basics_ops['++'],
+																_elm_lang$core$Basics$toString(
+																	_elm_lang$core$List$length(model.locations)),
+																' locations')),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$div,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$class('description'),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text(errors),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$div,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$class('row'),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$div,
+														{ctor: '[]'},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html$text(
+																A2(_elm_lang$core$Basics_ops['++'], 'Last Known Location: ', lastKnownLocationStr)),
+															_1: {ctor: '[]'}
+														}),
+													_1: {ctor: '[]'}
+												}),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$div,
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$class('row'),
+														_1: {ctor: '[]'}
+													},
+													{
+														ctor: '::',
+														_0: A2(
+															_elm_lang$html$Html$button,
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$GetNewLocation),
+																_1: {ctor: '[]'}
+															},
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html$text('Get Location'),
+																_1: {ctor: '[]'}
+															}),
+														_1: {
+															ctor: '::',
+															_0: A2(
+																_elm_lang$html$Html$button,
+																{
+																	ctor: '::',
+																	_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$AddCurrentLocation),
+																	_1: {ctor: '[]'}
+																},
+																{
+																	ctor: '::',
+																	_0: _elm_lang$html$Html$text('Add Current Location'),
+																	_1: {ctor: '[]'}
+																}),
+															_1: {
+																ctor: '::',
+																_0: A2(
+																	_elm_lang$html$Html$button,
+																	{
+																		ctor: '::',
+																		_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$ResetAllLocations),
+																		_1: {ctor: '[]'}
+																	},
+																	{
+																		ctor: '::',
+																		_0: _elm_lang$html$Html$text('Reset All Locations'),
+																		_1: {ctor: '[]'}
+																	}),
+																_1: {ctor: '[]'}
+															}
+														}
+													}),
+												_1: {ctor: '[]'}
+											}
+										}
+									}
+								}),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		});
+};
 var _user$project$Main$LocationClicked = function (a) {
 	return {ctor: 'LocationClicked', _0: a};
 };
@@ -11217,8 +11497,12 @@ var _user$project$Main$view = function (model) {
 			_0: _user$project$Main$header(model.gems),
 			_1: {
 				ctor: '::',
-				_0: _user$project$Main$locations(model.locations),
-				_1: {ctor: '[]'}
+				_0: _user$project$Main$debugPanel(model),
+				_1: {
+					ctor: '::',
+					_0: _user$project$Main$locations(model.locations),
+					_1: {ctor: '[]'}
+				}
 			}
 		});
 };
@@ -11227,7 +11511,7 @@ var _user$project$Main$main = _elm_lang$html$Html$program(
 		init: _user$project$Main$init,
 		view: _user$project$Main$view,
 		update: _user$project$Main$update,
-		subscriptions: function (_p12) {
+		subscriptions: function (_p17) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
 	})();

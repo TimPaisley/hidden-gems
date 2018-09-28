@@ -27,6 +27,19 @@ body {
     padding: 0 10px;
 }
 
+#debug .card {
+    box-shadow: none;
+    cursor: default;
+}
+
+#debug .card:hover {
+    background-color: white;
+}
+
+#debug .content div {
+    margin: 5px 0;
+}
+
 .card {
     display: flex;
     box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
@@ -69,4 +82,23 @@ body {
 
 .icon {
     padding: 5px;
+}
+
+button {
+    display: inline-block;
+    padding: 0.35em 1.2em;
+    border: 0.1em solid #000;
+    margin: 0 0.3em 0.3em 0;
+    border-radius: 0.12em;
+    box-sizing: border-box;
+    text-decoration: none;
+    color: #000;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    color: #FFF;
+    background-color: #000;
 }
